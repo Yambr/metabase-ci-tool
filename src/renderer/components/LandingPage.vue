@@ -1,108 +1,76 @@
 <template>
-  <div id="wrapper">
-    <img id="logo" src="~@/assets/logo.png" alt="electron-vue">
-    <main>
-      <div class="left-side">
-        <span class="title">
-          Welcome to your new project!
-          <b-icon-cloud></b-icon-cloud>
-        </span>
+  <main>
+    <b-container class="mt-5">
+      <b-row class="justify-content-center">
+        <b-col>
+          <b-jumbotron header="Metabase Tool" lead="Import and export tool for metabase">
+            <div v-if="!folder">
+              <p>Clone repository and choose folder</p>
+              <b-button @click="chooseFolder">Choose folder</b-button>
+            </div>
+          </b-jumbotron>
+        </b-col>
+      </b-row>
+      <b-row v-if="folder">
+        <b-col>
+          <Settings :config="config" :folder="folder" :updateConfig="updateConfig"/>
+        </b-col>
+        <b-col v-for="item in envs"  class="text-center">
+          <BLink class="link-info" @click="open(config[item].url)">{{ item }}</BLink>
+          <b-icon-arrow-right v-if="envs.indexOf(item) < envs.length -1"></b-icon-arrow-right>
+        </b-col>
+      </b-row>
+    </b-container>
+    <b-container v-if="config" class="mt-5">
+      <div v-for="item in envs" class="mt-2">
+        <Queries :config="config" :current-env="item" :folder="folder"/>
+        <div class="text-center">
+          <b-icon-arrow-down class="text-success" v-if="envs.indexOf(item) < envs.length -1"></b-icon-arrow-down>
+        </div>
       </div>
-    </main>
-  </div>
+    </b-container>
+  </main>
 </template>
 
 <script>
-  export default {
-    name: 'landing-page',
-    methods: {
-      open (link) {
-        this.$electron.shell.openExternal(link)
+import {remote} from 'electron'
+import {readRepository} from '../services/loadItemsFromPath'
+import Settings from './Settings'
+import Queries from './Queries'
+
+export default {
+  name: 'landing-page',
+  components: {Queries, Settings},
+  data() {
+    return {
+      currentEnv: 'dev',
+      folder: undefined,
+      config: undefined
+    }
+  },
+  computed: {
+    envs() {
+      return this.config ? Object.keys(this.config) : []
+    }
+  },
+  methods: {
+    chooseFolder() {
+      const dialog = remote.require('electron').dialog
+      this.folder = dialog.showOpenDialog({
+        properties: ['openDirectory']
+      })[0]
+      if (this.folder) {
+        this.config = readRepository(this.folder)
       }
+      console.log(this.folder)
+    },
+    updateConfig(config) {
+      this.config = config
+    },
+    open(link) {
+      this.$electron.shell.openExternal(link)
     }
   }
+}
 </script>
 
-<style>
-  @import url('https://fonts.googleapis.com/css?family=Source+Sans+Pro');
-
-  * {
-    box-sizing: border-box;
-    margin: 0;
-    padding: 0;
-  }
-
-  body { font-family: 'Source Sans Pro', sans-serif; }
-
-  #wrapper {
-    background:
-      radial-gradient(
-        ellipse at top left,
-        rgba(255, 255, 255, 1) 40%,
-        rgba(229, 229, 229, .9) 100%
-      );
-    height: 100vh;
-    padding: 60px 80px;
-    width: 100vw;
-  }
-
-  #logo {
-    height: auto;
-    margin-bottom: 20px;
-    width: 420px;
-  }
-
-  main {
-    display: flex;
-    justify-content: space-between;
-  }
-
-  main > div { flex-basis: 50%; }
-
-  .left-side {
-    display: flex;
-    flex-direction: column;
-  }
-
-  .welcome {
-    color: #555;
-    font-size: 23px;
-    margin-bottom: 10px;
-  }
-
-  .title {
-    color: #2c3e50;
-    font-size: 20px;
-    font-weight: bold;
-    margin-bottom: 6px;
-  }
-
-  .title.alt {
-    font-size: 18px;
-    margin-bottom: 10px;
-  }
-
-  .doc p {
-    color: black;
-    margin-bottom: 10px;
-  }
-
-  .doc button {
-    font-size: .8em;
-    cursor: pointer;
-    outline: none;
-    padding: 0.75em 2em;
-    border-radius: 2em;
-    display: inline-block;
-    color: #fff;
-    background-color: #4fc08d;
-    transition: all 0.15s ease;
-    box-sizing: border-box;
-    border: 1px solid #4fc08d;
-  }
-
-  .doc button.alt {
-    color: #42b983;
-    background-color: transparent;
-  }
-</style>
