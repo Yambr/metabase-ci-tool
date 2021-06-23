@@ -40,7 +40,7 @@
   </div>
 </template>
 <script>
-import {writeSettings} from '../services/loadItemsFromPath'
+import {writeSettings} from '../services/repository-config'
 
 export default {
   name: 'Settings',

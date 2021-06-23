@@ -34,9 +34,9 @@
 
 <script>
 import {remote} from 'electron'
-import {readRepository} from '../services/loadItemsFromPath'
 import Settings from './Settings'
 import Queries from './Queries'
+import {readRepository} from '../services/repository-config'
 
 export default {
   name: 'landing-page',

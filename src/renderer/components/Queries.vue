@@ -1,18 +1,31 @@
 <template>
   <b-card>
     <h4>{{ currentEnv }}</h4>
-    <b-button :variant="currentEnv==='dev'? 'success':'outline-warning'" @click="loadAll">
-      {{ currentEnv === 'dev' ? 'Load remote' : 'Load' }}
-      <b-spinner v-show="loading" small :variant="currentEnv==='dev'? 'light':'success'"></b-spinner>
+    <b-button-group>
+      <b-button :variant="currentEnv==='dev'? 'success':'outline-warning'" @click="loadAll">
+        Load remote
+        <b-spinner v-show="loading" small :variant="currentEnv==='dev'? 'light':'success'"></b-spinner>
+        <b-icon-box></b-icon-box>
+      </b-button>
+      <b-button variant="success" v-show="currentEnv==='dev'" @click="saveAll">
+        Save to folder
+        <b-spinner v-show="saving" small variant="light"></b-spinner>
+        <b-icon-download></b-icon-download>
+      </b-button>
+    </b-button-group>
+
+    <b-button variant="outline-warning" class="float-end">
+      Publish Remote
+      <b-icon-cloud-upload></b-icon-cloud-upload>
     </b-button>
-    <b-button variant="success" v-show="currentEnv==='dev'" @click="saveAll">
-      Save to folder
-      <b-spinner v-show="saving" small variant="light"></b-spinner>
-    </b-button>
-    <b-button variant="warning" v-show="currentEnv!=='dev'" @click="mergeAll">
-      Link Ids with Dev
-      <b-spinner v-show="merging" small variant="light"></b-spinner>
-    </b-button>
+    <div v-show="currentEnv!=='dev'" class="mt-2">
+      <b-button variant="warning" @click="mergeAll">
+        Link Ids with Dev
+        <b-spinner v-show="merging" small variant="light"></b-spinner>
+      </b-button>
+      use only once!
+    </div>
+
     <b-skeleton-wrapper :loading="loading">
       <template #loading>
         <b-container>
@@ -46,7 +59,9 @@
   </b-card>
 </template>
 <script>
-import {loadAll, mergeAll, saveAll} from '../services/loadItemsFromPath'
+import {mergeAllByDev} from '../services/first-merge-ids-by-dev'
+import {saveAll} from '../services/tool-to-repostitory'
+import {loadAll} from '../services/metabase-to-tool'
 
 export default {
   name: 'Queries',
@@ -61,7 +76,6 @@ export default {
       saving: false,
       merging: false,
       collections: [],
-      plainCollections: [],
       queries: [],
       dashboards: []
     }
@@ -72,27 +86,26 @@ export default {
       const {url, username, password} = this.config[this.currentEnv]
       const {
         collections,
-        plainCollections,
         queries,
         dashboards
-      } = await loadAll({url, username, password, env: this.currentEnv})
+      } = await loadAll({url, username, password, env: this.currentEnv, folder: this.folder})
       this.collections = collections
-      this.plainCollections = plainCollections
       this.queries = queries
       this.dashboards = dashboards
       this.loading = false
+      console.log(collections,
+        queries,
+        dashboards)
     },
     async saveAll() {
       this.saving = true
       const {
         collections,
-        plainCollections,
         queries,
         dashboards
       } = this
       await saveAll({
         collections,
-        plainCollections,
         queries,
         dashboards,
         env: this.currentEnv,
@@ -103,12 +116,12 @@ export default {
     async mergeAll() {
       this.merging = true
       const {
-        plainCollections,
+        collections,
         queries,
         dashboards
       } = this
-      await mergeAll({
-        plainCollections,
+      await mergeAllByDev({
+        collections,
         queries,
         dashboards,
         env: this.currentEnv,
