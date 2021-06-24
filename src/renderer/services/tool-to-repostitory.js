@@ -13,13 +13,17 @@ export const encoding = 'utf8'
 
 function createCollectionFolders(collections, rootFolder, parentFolder, currentCollections) {
   for (let item of collections) {
-    const {id, name, children, archived} = item
+    const {id, name, children, archived, personal_owner_id} = item
     if (archived) {
       continue
     }
     const {dev} = id
     const existingCollection = currentCollections.filter(c => c.id.dev === dev)[0]
-    const fPath = path.join(parentFolder, name)
+    const personalFolder = path.join(parentFolder, 'personal')
+    if (!fs.existsSync(personalFolder)) {
+      fs.mkdirSync(personalFolder)
+    }
+    const fPath = personal_owner_id ? path.join(parentFolder, 'personal', name) : path.join(parentFolder, name)
     if (existingCollection) {
       const oldPath = path.join(rootFolder, existingCollection.folder)
       if (fs.existsSync(oldPath)) {

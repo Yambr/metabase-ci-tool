@@ -1,6 +1,12 @@
 import axios from 'axios'
 import {auth, getConfig} from './metabase-auth'
-import {convertToPlainCollection, readCardsPlain, readCollections, readDashboardsPlain} from './repository'
+import {
+  convertToPlainCollection,
+  extractSharedId,
+  readCardsPlain,
+  readCollections,
+  readDashboardsPlain
+} from './repository'
 
 export async function loadAll({url, username, password, env, folder}) {
   const {id} = await auth({url, username, password})
@@ -22,7 +28,7 @@ export async function loadAll({url, username, password, env, folder}) {
 async function loadCollections({url, token, env, folder}) {
   const collectionUrl = url + '/api/collection/tree'
   const colls = await axios.get(collectionUrl, getConfig(token))
-  const commonCollections = colls.data.filter(c => c.personal_owner_id === null)
+  const commonCollections = colls.data// .filter(c => c.personal_owner_id === null)
 
   const rootCollUrl = url + '/api/collection/root'
   const rootCol = await axios.get(rootCollUrl, getConfig(token))
@@ -34,12 +40,6 @@ async function loadCollections({url, token, env, folder}) {
   return collections
 }
 
-function extractSharedId(currentItems, env, id) {
-  const element = currentItems.filter(c => c.id[env] === id)[0]
-  const sharedId = element ? element.id : {[env]: id}
-  return sharedId
-}
-
 function prepareCollection(colls, currentPlainCollections, env, parentId) {
   return colls.map(({
     id,
@@ -48,6 +48,7 @@ function prepareCollection(colls, currentPlainCollections, env, parentId) {
     description,
     namespace,
     children,
+    personal_owner_id,
     archived
   }) => {
     if (children && children.length) {
@@ -61,6 +62,7 @@ function prepareCollection(colls, currentPlainCollections, env, parentId) {
       description,
       namespace,
       children,
+      personal_owner_id,
       archived
     }
 
@@ -75,10 +77,10 @@ function prepareCollection(colls, currentPlainCollections, env, parentId) {
 async function loadQueries(collections, {url, token, env, folder}) {
   const collectionUrl = url + '/api/card'
   const {data} = await axios.get(collectionUrl, getConfig(token))
-  const commonQueries = data.filter(c => !c.collection || c.collection.personal_owner_id === null)
+  const commonQueries = data// .filter(c => !c.collection || c.collection.personal_owner_id === null)
 
   const existingCards = readCardsPlain(folder)
-  const existingCollections = readCollections(folder)
+  const existingCollections = convertToPlainCollection(readCollections(folder))
 
   const queries = []
   for (let {
@@ -133,7 +135,7 @@ async function loadDashboards(collections, {url, token, env, folder}) {
   } of data) {
     const collId = collection_id || 'root'
     const coll = collections.filter(({id}) => id[env] === collId)[0]
-    const existingItem = existingDashboards.filter(d => d.id[env] === id[env])[0]
+    const existingItem = existingDashboards.filter(d => d.id[env] === id)[0]
     if (coll) {
       const collectionUrl = url + '/api/dashboard/' + id
       const details = await axios.get(collectionUrl, getConfig(token))
@@ -166,12 +168,9 @@ async function loadDashboards(collections, {url, token, env, folder}) {
         visualization_settings
       }) => {
         const sharedId = extractSharedId(existingDahboardCards, env, id)
-        const sharedCardId = extractSharedId(existingCards, env, card_id)
-
-        return {
+        const card = {
           row,
           col,
-          card_id: sharedCardId,
           id: sharedId,
           parameter_mappings,
           series,
@@ -179,6 +178,11 @@ async function loadDashboards(collections, {url, token, env, folder}) {
           sizeY,
           visualization_settings
         }
+        if (card_id) {
+          const sharedCardId = extractSharedId(existingCards, env, card_id)
+          card.card_id = sharedCardId
+        }
+        return card
       })
 
       const sharedId = extractSharedId(existingDashboards, env, id)

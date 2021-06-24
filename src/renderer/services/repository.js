@@ -34,6 +34,7 @@ export function convertToPlainCollection(collections, plainCollections = undefin
 }
 
 function readFolder(itemsPath) {
+  if (!fs.existsSync(itemsPath)) { return [] }
   const files = fs.readdirSync(itemsPath)
 
   const existingItems = files.filter(c => {
@@ -134,4 +135,10 @@ function itemsPathExists(rootFolder, folder, subFolder) {
   if (!fs.existsSync(itemsPath)) {
     fs.mkdirSync(itemsPath)
   }
+}
+
+export function extractSharedId(currentItems, env, id) {
+  const element = currentItems.filter(c => c.id[env] === id)[0]
+  const sharedId = element ? element.id : {[env]: id}
+  return sharedId
 }
