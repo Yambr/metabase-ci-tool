@@ -62,7 +62,6 @@ export default {
       if (this.folder) {
         this.config = readRepository(this.folder)
       }
-      console.log(this.folder)
     },
     updateConfig(config) {
       this.config = config

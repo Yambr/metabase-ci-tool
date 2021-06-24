@@ -14,7 +14,7 @@
       </b-button>
     </b-button-group>
 
-    <b-button variant="outline-warning" class="float-end">
+    <b-button variant="outline-warning" class="float-end" @click="publish">
       Publish Remote
       <b-icon-cloud-upload></b-icon-cloud-upload>
     </b-button>
@@ -62,6 +62,7 @@
 import {mergeAllByDev} from '../services/first-merge-ids-by-dev'
 import {saveAll} from '../services/tool-to-repostitory'
 import {loadAll} from '../services/metabase-to-tool'
+import {publish} from '../services/publisher'
 
 export default {
   name: 'Queries',
@@ -81,6 +82,16 @@ export default {
     }
   },
   methods: {
+    async publish() {
+      const {url, username, password} = this.config[this.currentEnv]
+      await publish({
+        url,
+        username,
+        password,
+        env: this.currentEnv,
+        folder: this.folder
+      })
+    },
     async loadAll() {
       this.loading = true
       const {url, username, password} = this.config[this.currentEnv]
@@ -93,9 +104,6 @@ export default {
       this.queries = queries
       this.dashboards = dashboards
       this.loading = false
-      console.log(collections,
-        queries,
-        dashboards)
     },
     async saveAll() {
       this.saving = true

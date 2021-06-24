@@ -46,12 +46,25 @@ function readFolder(itemsPath) {
   })
   return existingItems
 }
+
+export function readCollectionCards(folder, collection) {
+  return readCollectionItems(folder, collection, cardsFolder)
+}
+export function readCollectionDashboards(folder, collection) {
+  return readCollectionItems(folder, collection, dashboardsFolder)
+}
+
+function readCollectionItems(folder, collection, subFolder) {
+  const itemsPath = path.join(folder, collection.folder, subFolder)
+  const cards = readFolder(itemsPath)
+  return cards
+}
+
 function readItems(folder, subFolder) {
   const collections = convertToPlainCollection(readCollections(folder)).filter(({archived}) => !archived)
 
   return collections.map(collection => {
-    const itemsPath = path.join(folder, collection.folder, subFolder)
-    const cards = readFolder(itemsPath)
+    const cards = readCollectionItems(folder, collection, subFolder)
     return {
       collection,
       cards
