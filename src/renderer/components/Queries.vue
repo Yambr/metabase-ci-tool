@@ -61,7 +61,7 @@
 </template>
 <script>
 import {mergeAllByDev} from '../services/first-merge-ids-by-dev'
-import {saveAll} from '../services/tool-to-repostitory'
+import {saveAll} from '../../ci/services/tool-to-repostitory'
 import {loadAll} from '../../ci/services/metabase-to-tool'
 import {publish} from '../../ci/services/publisher'
 

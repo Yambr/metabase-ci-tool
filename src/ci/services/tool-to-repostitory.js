@@ -7,7 +7,7 @@ import {
   readCollections, readDashboardsPlain,
   removeCard, removeDashboard, writeCard,
   writeCollections, writeDashboard
-} from '../../ci/services/repository'
+} from './repository'
 
 export const encoding = 'utf8'
 
