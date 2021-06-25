@@ -191,18 +191,12 @@ function needUpdateDashboard(local, remote, env) {
 async function createDashboard({url, token, d, env, folder}) {
   const {
     name,
-    description,
-    parameters,
-    collection_position,
     collection_id,
     cards
   } = d
   const collectionUrl = url + '/api/dashboard/'
   const {data} = await axios.post(collectionUrl, {
     name,
-    description,
-    parameters,
-    collection_position,
     collection_id: collection_id[env]
   }, getConfig(token))
 
@@ -228,6 +222,9 @@ async function createDashboard({url, token, d, env, folder}) {
   await axios.put(updateCardsUrl, {cards: putCards}, getConfig(token))
 
   const {
+    description,
+    parameters,
+    collection_position,
     points_of_interest,
     archived,
     show_in_getting_started,
@@ -238,13 +235,17 @@ async function createDashboard({url, token, d, env, folder}) {
   } = d
   const updateDashboardUrl = url + '/api/dashboard/' + d.id[env]
   await axios.put(updateDashboardUrl, {
+    description,
+    parameters,
+    collection_position,
     points_of_interest,
     archived,
     show_in_getting_started,
     enable_embedding,
     caveats,
     embedding_params,
-    position
+    position,
+    ordered_cards: cards
   }, getConfig(token))
 
   const collections = convertToPlainCollection(readCollections(folder))
