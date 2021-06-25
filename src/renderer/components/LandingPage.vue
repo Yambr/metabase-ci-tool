@@ -15,9 +15,15 @@
         <b-col>
           <Settings :config="config" :folder="folder" :updateConfig="updateConfig"/>
         </b-col>
-        <b-col v-for="item in envs"  class="text-center">
-          <BLink class="link-info" @click="open(config[item].url)">{{ item }}</BLink>
-          <b-icon-arrow-right v-if="envs.indexOf(item) < envs.length -1"></b-icon-arrow-right>
+        <b-col >
+          <b-list-group horizontal>
+            <b-list-group-item v-for="item in envs" :key="item" href="#"  @click="open(config[item].url)">
+              {{ item }}
+              <b-icon-arrow-right v-if="envs.indexOf(item) < envs.length -1"></b-icon-arrow-right>
+            </b-list-group-item>
+          </b-list-group>
+          <BLink class="link-info" ></BLink>
+
         </b-col>
       </b-row>
     </b-container>
