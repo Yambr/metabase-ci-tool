@@ -4,7 +4,7 @@ import {
   readCollections, readDashboardsPlain,
   writeCard,
   writeCollections, writeDashboard
-} from './repository'
+} from '../../ci/services/repository'
 
 function mergeCollection(currentCollections, plainCollections, env) {
   for (let coll of currentCollections) {

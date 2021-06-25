@@ -55,7 +55,7 @@ async function createDashboard({url, token, d, env, folder}) {
   const collectionUrl = url + '/api/dashboard/'
   const {data} = await axios.post(collectionUrl, {
     name,
-    collection_id: collection_id[env]
+    collection_id: collection_id[env] === 'root' ? null : collection_id[env]
   }, getConfig(token))
 
   d.id[env] = data.id
@@ -143,8 +143,6 @@ async function updateDashboard({url, token, dlocal, dremote, env, folder}) {
     return !local
   })
 
-  console.log(newCards, cardsToUpdate, cardsToRemove)
-
   for (let c of cardsToRemove) {
     const deleteCardUrl = url + `/api/dashboard/${dlocal.id[env]}/cards?dashcardId=${c.id[env]}`
     await axios.delete(deleteCardUrl, getConfig(token))
@@ -184,7 +182,7 @@ async function updateDashboard({url, token, dlocal, dremote, env, folder}) {
     caveats,
     embedding_params,
     position,
-    collection_id: collection_id[env],
+    collection_id: collection_id[env] === 'root' ? null : collection_id[env],
     ordered_cards: cards
   }, getConfig(token))
 

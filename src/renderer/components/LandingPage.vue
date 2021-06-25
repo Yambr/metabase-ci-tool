@@ -36,7 +36,7 @@
 import {remote} from 'electron'
 import Settings from './Settings'
 import Queries from './Queries'
-import {readRepository} from '../services/repository-config'
+import {readRepository} from '../../ci/services/repository-config'
 
 export default {
   name: 'landing-page',

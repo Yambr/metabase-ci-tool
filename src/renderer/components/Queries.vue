@@ -7,15 +7,16 @@
         <b-spinner v-show="loading" small :variant="currentEnv==='dev'? 'light':'success'"></b-spinner>
         <b-icon-box></b-icon-box>
       </b-button>
-      <b-button variant="success" v-show="currentEnv==='dev'" @click="saveAll">
+      <b-button :disabled="dev_save_deny" variant="success" v-show="currentEnv==='dev'" @click="saveAll">
         Save to folder
         <b-spinner v-show="saving" small variant="light"></b-spinner>
         <b-icon-download></b-icon-download>
       </b-button>
     </b-button-group>
 
-    <b-button variant="outline-warning" class="float-end" @click="publish">
+    <b-button v-show="currentEnv!=='dev'" variant="outline-warning" class="float-end" @click="publish">
       Publish Remote
+      <b-spinner v-show="publishing" small variant="light"></b-spinner>
       <b-icon-cloud-upload></b-icon-cloud-upload>
     </b-button>
     <div v-show="currentEnv!=='dev'" class="mt-2">
@@ -61,8 +62,8 @@
 <script>
 import {mergeAllByDev} from '../services/first-merge-ids-by-dev'
 import {saveAll} from '../services/tool-to-repostitory'
-import {loadAll} from '../services/metabase-to-tool'
-import {publish} from '../services/publisher'
+import {loadAll} from '../../ci/services/metabase-to-tool'
+import {publish} from '../../ci/services/publisher'
 
 export default {
   name: 'Queries',
@@ -73,9 +74,11 @@ export default {
   },
   data() {
     return {
+      dev_save_deny: true,
       loading: false,
       saving: false,
       merging: false,
+      publishing: false,
       collections: [],
       queries: [],
       dashboards: []
@@ -83,6 +86,7 @@ export default {
   },
   methods: {
     async publish() {
+      this.publishing = true
       const {url, username, password} = this.config[this.currentEnv]
       await publish({
         url,
@@ -91,6 +95,7 @@ export default {
         env: this.currentEnv,
         folder: this.folder
       })
+      this.publishing = false
     },
     async loadAll() {
       this.loading = true
@@ -104,6 +109,7 @@ export default {
       this.queries = queries
       this.dashboards = dashboards
       this.loading = false
+      this.dev_save_deny = false
     },
     async saveAll() {
       this.saving = true
@@ -120,6 +126,7 @@ export default {
         folder: this.folder
       })
       this.saving = false
+      this.dev_save_deny = true
     },
     async mergeAll() {
       this.merging = true

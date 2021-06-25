@@ -43,7 +43,7 @@ async function createCard({url, token, q, env, folder}) {
     name,
     dataset_query,
     display,
-    collection_id: collection_id[env]
+    collection_id: collection_id[env] === 'root' ? null : collection_id[env]
   }, getConfig(token))
 
   q.id[env] = data.id
@@ -96,7 +96,7 @@ async function updateCard({url, token, q, env, folder}) {
     name,
     dataset_query,
     display,
-    collection_id: collection_id[env]
+    collection_id: collection_id[env] === 'root' ? null : collection_id[env]
   }, getConfig(token))
 }
 
