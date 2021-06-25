@@ -155,3 +155,12 @@ export function extractSharedId(currentItems, env, id) {
   const sharedId = element ? element.id : {[env]: id}
   return sharedId
 }
+
+export function compareItem(fields, local, remote) {
+  for (let i of fields) {
+    if (JSON.stringify(local[i]) !== JSON.stringify(remote[i])) {
+      return true
+    }
+  }
+  return false
+}
