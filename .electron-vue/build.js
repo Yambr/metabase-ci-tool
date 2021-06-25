@@ -8,7 +8,7 @@ const del = require('del')
 const { spawn } = require('child_process')
 const webpack = require('webpack')
 const Listr = require('listr')
-
+const Multispinner = require('multispinner')
 
 const mainConfig = require('./webpack.main.config')
 const rendererConfig = require('./webpack.renderer.config')
@@ -42,7 +42,7 @@ async function build () {
 
   let results = ''
 
-  const tasks = new Listr(
+  const taskList = new Listr(
     [
       {
         title: 'building master process',
@@ -74,7 +74,7 @@ async function build () {
     { concurrent: 2 }
   )
 
-  await tasks
+  await taskList
     .run()
     .then(() => {
       process.stdout.write('\x1B[2J\x1B[0f')
