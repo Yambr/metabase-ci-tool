@@ -69,6 +69,37 @@ async function createCard({url, token, q, env, folder}) {
   }
 }
 
+async function updateCard({url, token, q, env, folder}) {
+  const {
+    id,
+    visualization_settings,
+    description,
+    archived,
+    collection_position,
+    result_metadata,
+    enable_embedding,
+    embedding_params,
+    name,
+    dataset_query,
+    display,
+    collection_id
+  } = q
+  const collectionUrl = url + `/api/card/${id[env]}`
+  await axios.put(collectionUrl, {
+    visualization_settings,
+    description,
+    archived,
+    collection_position,
+    result_metadata,
+    enable_embedding,
+    embedding_params,
+    name,
+    dataset_query,
+    display,
+    collection_id: collection_id[env]
+  }, getConfig(token))
+}
+
 export async function publishQueries({url, token, remoteQueries, env, folder}) {
   const localQueries = readCardsPlain(folder)
   for (let q of localQueries) {
@@ -77,6 +108,7 @@ export async function publishQueries({url, token, remoteQueries, env, folder}) {
       const remoteCard = remoteQueries.filter(c => c.id[env] === envId)[0]
       if (needUpdateCard(q, remoteCard, env)) {
         console.log('update', q, remoteCard)
+        await updateCard({url, token, q, env, folder})
       }
     } else {
       console.log('create', q)

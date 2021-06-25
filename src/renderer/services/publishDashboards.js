@@ -65,19 +65,7 @@ async function createDashboard({url, token, d, env, folder}) {
     c.id[env] = data.id
   }
 
-  const updateCardsUrl = url + `/api/dashboard/${d.id[env]}/cards`
-  const putCards = cards.map(c => {
-    const sc = {
-      ...c,
-      id: c.id[env]
-    }
-    if (c.card_id) {
-      sc.card_id = c.card_id[env]
-    }
-    return sc
-  })
-  console.log(putCards)
-  await axios.put(updateCardsUrl, {cards: putCards}, getConfig(token))
+  await putCards(url, d, env, cards, token)
 
   const {
     description,
@@ -111,14 +99,109 @@ async function createDashboard({url, token, d, env, folder}) {
   writeDashboard(folder, dcoll.folder, d.name, d)
 }
 
+async function putCards(url, dlocal, env, cards, token) {
+  const updateCardsUrl = url + `/api/dashboard/${dlocal.id[env]}/cards`
+  const putCards = cards.map(c => {
+    const sc = {
+      ...c,
+      id: c.id[env]
+    }
+    if (c.card_id) {
+      sc.card_id = c.card_id[env]
+    }
+    return sc
+  })
+  console.log(putCards)
+  await axios.put(updateCardsUrl, {cards: putCards}, getConfig(token))
+}
+
+async function updateDashboard({url, token, dlocal, dremote, env, folder}) {
+  const {
+    cards
+  } = dlocal
+
+  const remoteCards = dremote.cards
+
+  /* const cardsToUpdate = cards.filter(local => {
+    const remote = remoteCards.filter(r => r.id[env] === local.id[env])[0]
+    if (remote) {
+      const fields = [
+        'row',
+        'col',
+        'parameter_mappings',
+        'series',
+        'sizeX',
+        'sizeY',
+        'visualization_settings']
+      return compareItem(fields, local, remote)
+    }
+    return false
+  }) */
+
+  const cardsToRemove = remoteCards.filter(c => {
+    const local = cards.filter(l => l.id[env] === c.id[env])[0]
+    return !local
+  })
+
+  console.log(newCards, cardsToUpdate, cardsToRemove)
+
+  for (let c of cardsToRemove) {
+    const deleteCardUrl = url + `/api/dashboard/${dlocal.id[env]}/cards?dashcardId=${c.id[env]}`
+    await axios.delete(deleteCardUrl, getConfig(token))
+  }
+
+  for (let c of cards.filter(c => !c.id[env])) {
+    const createCardUrl = url + `/api/dashboard/${dlocal.id[env]}/cards`
+    const {data} = await axios.post(createCardUrl, {cardId: c.card_id ? c.card_id[env] : null}, getConfig(token))
+    c.id[env] = data.id
+  }
+  await putCards(url, dlocal, env, cards, token)
+
+  const {
+    name,
+    collection_id,
+    description,
+    parameters,
+    collection_position,
+    points_of_interest,
+    archived,
+    show_in_getting_started,
+    enable_embedding,
+    caveats,
+    embedding_params,
+    position
+  } = dlocal
+  const updateDashboardUrl = url + '/api/dashboard/' + dlocal.id[env]
+  await axios.put(updateDashboardUrl, {
+    name,
+    description,
+    parameters,
+    collection_position,
+    points_of_interest,
+    archived,
+    show_in_getting_started,
+    enable_embedding,
+    caveats,
+    embedding_params,
+    position,
+    collection_id: collection_id[env],
+    ordered_cards: cards
+  }, getConfig(token))
+
+  const collections = convertToPlainCollection(readCollections(folder))
+  const dcoll = collections.filter(c => c.id.dev === dlocal.collection_id.dev)[0]
+  writeDashboard(folder, dcoll.folder, dlocal.name, dlocal)
+}
+
 export async function publishDashboards({url, token, remoteDashboards, env, folder}) {
   const localDashboards = readDashboardsPlain(folder)
   for (let d of localDashboards) {
     const envId = d.id[env]
     if (envId) {
-      const remoteCard = remoteDashboards.filter(c => c.id[env] === envId)[0]
-      if (needUpdateDashboard(d, remoteCard, env)) {
-        console.log('update', d, remoteCard)
+      const remoteDashboard = remoteDashboards.filter(c => c.id[env] === envId)[0]
+      if (needUpdateDashboard(d, remoteDashboard, env)) {
+        console.log('update', d, remoteDashboard)
+        await updateDashboard({url, token, dlocal: d, dremote: remoteDashboard, env, folder})
       }
     } else {
       console.log('create', d)

@@ -30,7 +30,7 @@ async function createColl({url, token, col, env, folder}) {
     name,
     color,
     description,
-    parent_id: parent_id[env],
+    parent_id: parent_id ? parent_id[env] : null,
     namespace
   }, getConfig(token))
 
@@ -47,6 +47,27 @@ async function createColl({url, token, col, env, folder}) {
   }
 }
 
+async function updateColl({url, token, col, env, folder}) {
+  const {
+    id,
+    name,
+    color,
+    description,
+    archived,
+    parent_id,
+    namespace
+  } = col
+  const collectionUrl = url + `/api/collection/${id[env]}`
+  await axios.put(collectionUrl, {
+    name,
+    color,
+    description,
+    archived,
+    parent_id: parent_id ? parent_id[env] : null,
+    namespace
+  }, getConfig(token))
+}
+
 export async function publishCollections({url, token, remoteCollections, env, folder}) {
   const localCollections = readCollections(folder)
   const realColls = convertToPlainCollection(localCollections)
@@ -61,6 +82,7 @@ export async function publishCollections({url, token, remoteCollections, env, fo
       const remoteColl = remoteColls.filter(c => c.id[env] === envId)[0]
       if (needUpdateColl(col, remoteColl)) {
         console.log('update', col, remoteColl)
+        await updateColl({url, token, col, env, folder})
       }
     } else {
       console.log('create', col)
