@@ -1,6 +1,12 @@
-# metabase-ci
+# metabase ci tool
+Git+metabase - now works with cards and dashboards (create and update)
+### What i can do with this tool?
+- store you cards and dashboards in git repository
+- manual deploy and configuration with desktop tool 
+- automatic deploy (with you runner) from repository
 
-> An electron-vue project
+> An electron-vue project (+bootstrap)
+> And node console tool for CI/CD
 
 #### Build Setup
 
@@ -22,7 +28,45 @@ npm test
 npm run lint
 
 ```
-
+using 
+- metabase rest api
+- nodejs
+- electron (for desktop app)
 ---
+## How it works?
+### 1. Prepare you environments
+0. Be sure dev and stage environments equal to production (you can restore backup to dev and stage from production)
+1. create new empty git repository
+2. Open "metabase-ci" (desktop app - you can build from this repository)
+3. Choose repository folder
+![img.png](images/metabase-desktop.png)
+4. Configure metabase envs in settings (enter url and credentials)
+![img.png](images/env-settings.png)
 
-This project was generated with [electron-vue](https://github.com/SimulatedGREG/electron-vue)@[8d4ed60](https://github.com/SimulatedGREG/electron-vue/tree/8d4ed607d65300381a8f47d97923eb07832b1a9a) using [vue-cli](https://github.com/vuejs/vue-cli). Documentation about the original structure can be found [here](https://simulatedgreg.gitbooks.io/electron-vue/content/index.html).
+**Load and link ids from environments**
+
+1. Load remote for dev and Save to folder (*commit to see changes in repo*)
+2. Load remote for stage and Link Ids with Dev (*commit to see changes in repo*)
+3. Load remote for production and Link Ids with Dev (*commit to see changes in repo*)
+   
+![img.png](images/stages.png)
+
+**Congrats! Now you have repo with you metabase items**
+
+### 2. Develop some changes in dev 
+0. Open you metabase site (only dev) - and change you some collection or card or dashboard
+1. Open "metabase-ci" (desktop app - you can build from this repository)
+2. Click Load remote for dev and Save to folder (*commit to see changes in repo*)
+
+**Now you can see you changes in repo**
+
+### 3. Manual publishing 
+*stage for example*
+1. Open "metabase-ci" (desktop app - you can build from this repository)
+2. Click Publish Remote for stage (*commit to see changes in repo*)
+*publishing adding new ids from environment - don't forget commit it*
+   
+### 4 Automatic publishing
+[console tool](src/ci/README.md) - using logic like manual publishing
+
+
