@@ -64,7 +64,7 @@ using
 *stage for example*
 1. Open "metabase-ci" (desktop app - you can build from this repository)
 2. Click Publish Remote for stage (*commit to see changes in repo*)
-*publishing adding new ids from environment - don't forget commit it*
+*publishing adding new ids from environment - don't forget commit them*
    
 ### 4 Automatic publishing
 [console tool](src/ci/README.md) - using logic like manual publishing

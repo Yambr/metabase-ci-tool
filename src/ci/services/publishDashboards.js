@@ -96,7 +96,7 @@ async function createDashboard({url, token, d, env, folder}) {
 
   const collections = convertToPlainCollection(readCollections(folder))
   const dcoll = collections.filter(c => c.id.dev === d.collection_id.dev)[0]
-  writeDashboard(folder, dcoll.folder, d.name, d)
+  writeDashboard(folder, dcoll.folder, d)
 }
 
 async function putCards(url, dlocal, env, cards, token) {
@@ -188,7 +188,7 @@ async function updateDashboard({url, token, dlocal, dremote, env, folder}) {
 
   const collections = convertToPlainCollection(readCollections(folder))
   const dcoll = collections.filter(c => c.id.dev === dlocal.collection_id.dev)[0]
-  writeDashboard(folder, dcoll.folder, dlocal.name, dlocal)
+  writeDashboard(folder, dcoll.folder, dlocal)
 }
 
 export async function publishDashboards({url, token, remoteDashboards, env, folder}) {

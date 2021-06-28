@@ -13,17 +13,23 @@ export const encoding = 'utf8'
 
 function createCollectionFolders(collections, rootFolder, parentFolder, currentCollections) {
   for (let item of collections) {
-    const {id, name, children, archived, personal_owner_id} = item
-    if (archived) {
-      continue
-    }
+    const {id, children, archived, personal_owner_id} = item
     const {dev} = id
+    const name = `${item.name} (${dev})`
     const existingCollection = currentCollections.filter(c => c.id.dev === dev)[0]
     const personalFolder = path.join(parentFolder, 'personal')
     if (!fs.existsSync(personalFolder)) {
       fs.mkdirSync(personalFolder)
     }
-    const fPath = personal_owner_id ? path.join(parentFolder, 'personal', name) : path.join(parentFolder, name)
+    const archivedFolder = path.join(rootFolder, 'archived')
+    if (!fs.existsSync(archivedFolder)) {
+      fs.mkdirSync(archivedFolder)
+    }
+    const fPath = personal_owner_id
+      ? path.join(rootFolder, 'personal', name)
+      : archived
+        ? path.join(rootFolder, 'archived', name)
+        : path.join(parentFolder, name)
     if (existingCollection) {
       const oldPath = path.join(rootFolder, existingCollection.folder)
       if (fs.existsSync(oldPath)) {
@@ -63,21 +69,18 @@ async function saveCollections(folder, collections) {
 async function saveQueries(collections, queries, env, rootFolder) {
   const existingItems = readCardsPlain(rootFolder)
 
-  for (let {archived, id, folder} of collections) {
-    if (archived) {
-      continue
-    }
+  for (let {id, folder} of collections) {
     const itemsOfColl = queries.filter(c => c.collection_id[env] === id[env])
     cardsPathExists(rootFolder, folder)
     cleanCards(rootFolder, folder)
     for (let i of itemsOfColl) {
-      const {id, name} = i
+      const {id} = i
       const exisitngItem = existingItems.filter(c => c.id[env] === id[env])[0]
       // возможно тут и в исходной коллеции стоит поискать
       if (exisitngItem) {
         removeCard(rootFolder, folder, exisitngItem.name)
       }
-      writeCard(rootFolder, folder, name, i)
+      writeCard(rootFolder, folder, i)
     }
   }
 }
@@ -85,21 +88,18 @@ async function saveQueries(collections, queries, env, rootFolder) {
 async function saveDashboards(collections, dashboards, env, rootFolder) {
   const existingItems = readDashboardsPlain(rootFolder)
 
-  for (let {archived, id, folder} of collections) {
-    if (archived) {
-      continue
-    }
+  for (let {id, folder} of collections) {
     const itemsOfColl = dashboards.filter(c => c.collection_id[env] === id[env])
     dashboardsPathExists(rootFolder, folder)
     cleanDashboards(rootFolder, folder)
     for (let i of itemsOfColl) {
-      const {id, name} = i
+      const {id} = i
       const exisitngItem = existingItems.filter(c => c.id[env] === id[env])[0]
       // возможно тут и в исходной коллеции стоит поискать
       if (exisitngItem) {
         removeDashboard(rootFolder, folder, exisitngItem.name)
       }
-      writeDashboard(rootFolder, folder, name, i)
+      writeDashboard(rootFolder, folder, i)
     }
   }
 }

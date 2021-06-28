@@ -38,12 +38,12 @@ async function createColl({url, token, col, env, folder}) {
   const cards = readCollectionCards(folder, col)
   for (let c of cards) {
     c.collection_id[env] = data.id
-    writeCard(folder, col.folder, c.name, c)
+    writeCard(folder, col.folder, c)
   }
   const dashboards = readCollectionDashboards(folder, col)
   for (let c of dashboards) {
     c.collection_id[env] = data.id
-    writeDashboard(folder, col.folder, c.name, c)
+    writeDashboard(folder, col.folder, c)
   }
 }
 

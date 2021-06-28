@@ -50,7 +50,7 @@ async function createCard({url, token, q, env, folder}) {
 
   const collections = convertToPlainCollection(readCollections(folder))
   const qcoll = collections.filter(c => c.id.dev === q.collection_id.dev)[0]
-  writeCard(folder, qcoll.folder, q.name, q)
+  writeCard(folder, qcoll.folder, q)
 
   const dashboards = readDashboardsPlain(folder)
   for (let d of dashboards) {
@@ -64,7 +64,7 @@ async function createCard({url, token, q, env, folder}) {
     }
     if (reSave) {
       const dcoll = collections.filter(c => c.id.dev === d.collection_id.dev)[0]
-      writeDashboard(folder, dcoll.folder, d.name, d)
+      writeDashboard(folder, dcoll.folder, d)
     }
   }
 }

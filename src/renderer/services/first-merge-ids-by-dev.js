@@ -45,19 +45,15 @@ async function mergeQueries(collections, queries, env, rootFolder) {
 
   if (!existingItems.length) { return }
 
-  for (let {archived, id, folder} of collections) {
-    if (archived) {
-      continue
-    }
+  for (let {id, folder} of collections) {
     const itemsOfColl = queries.filter(c => c.collection_id[env] === id[env])
 
     for (let i of itemsOfColl) {
-      const {name} = i
       const exisitngItem = existingItems.filter(c => c.id.dev === i.id[env])[0]
       if (exisitngItem) {
         exisitngItem.id[env] = i.id[env]
         exisitngItem.collection_id = extractSharedId(currentPlainCollections, env, id[env])
-        writeCard(rootFolder, folder, name, exisitngItem)
+        writeCard(rootFolder, folder, exisitngItem)
       }
     }
   }
@@ -83,21 +79,18 @@ async function mergeDashboards(collections, dashboards, env, rootFolder) {
 
   if (!existingItems.length) { return }
 
-  for (let {archived, id, folder} of collections) {
-    if (archived) {
-      continue
-    }
+  for (let {id, folder} of collections) {
     const itemsOfColl = dashboards.filter(c => c.collection_id[env] === id[env])
 
     for (let i of itemsOfColl) {
-      const {name, cards} = i
+      const {cards} = i
       const exisitngItem = existingItems.filter(c => c.id.dev === i.id[env])[0]
       if (exisitngItem) {
         exisitngItem.id[env] = i.id[env]
         exisitngItem.collection_id = extractSharedId(currentPlainCollections, env, id[env])
         mergeDashboardCards(cards, exisitngItem.cards, env)
 
-        writeDashboard(rootFolder, folder, name, exisitngItem)
+        writeDashboard(rootFolder, folder, exisitngItem)
       }
     }
   }

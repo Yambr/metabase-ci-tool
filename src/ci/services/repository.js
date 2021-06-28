@@ -61,42 +61,49 @@ function readCollectionItems(folder, collection, subFolder) {
 }
 
 function readItems(folder, subFolder) {
-  const collections = convertToPlainCollection(readCollections(folder)).filter(({archived}) => !archived)
+  const collections = convertToPlainCollection(readCollections(folder))
 
   return collections.map(collection => {
-    const cards = readCollectionItems(folder, collection, subFolder)
+    const items = readCollectionItems(folder, collection, subFolder)
     return {
       collection,
-      cards
+      items
     }
   })
 }
 
 export function readCardsPlain(folder) {
-  const cards = readItems(folder, cardsFolder).map(c => c.cards)
-  return [].concat(...cards)
+  const items = readItems(folder, cardsFolder).map(c => c.items)
+  return [].concat(...items)
 }
 
 export function readDashboardsPlain(folder) {
-  const cards = readItems(folder, dashboardsFolder).map(c => c.cards)
-  return [].concat(...cards)
+  const items = readItems(folder, dashboardsFolder).map(c => c.items)
+  return [].concat(...items)
 }
 
-export function writeCard(rootFolder, folder, name, data) {
-  writeItem(rootFolder, folder, name, data, cardsFolder)
+function itemName({id, name}) {
+  const {dev} = id
+  return `${name} (${dev})`
+}
+
+export function writeCard(rootFolder, folder, data) {
+  writeItem(rootFolder, folder, data, cardsFolder)
+
   const { dataset_query } = data
   if (dataset_query && dataset_query.type === 'native') {
     const {query} = dataset_query.native
     const cardsPath = path.join(rootFolder, folder, cardsFolder)
-    const queryPath = path.join(cardsPath, `${name.replace(/[/\\?%*:|"<>]/g, '-')}(readonly).sql`)
+    const queryPath = path.join(cardsPath, `${itemName(data).replace(/[/\\?%*:|"<>]/g, '-')}(readonly).sql`)
     fs.writeFileSync(queryPath, query, encoding)
   }
 }
 
-export function writeDashboard(rootFolder, folder, name, data) {
-  writeItem(rootFolder, folder, name, data, dashboardsFolder)
+export function writeDashboard(rootFolder, folder, data) {
+  writeItem(rootFolder, folder, data, dashboardsFolder)
 }
-function writeItem(rootFolder, folder, name, data, subFolder) {
+function writeItem(rootFolder, folder, data, subFolder) {
+  const name = itemName(data)
   const itemsPath = path.join(rootFolder, folder, subFolder)
   const existFilePath = path.join(itemsPath, `${name.replace(/[/\\?%*:|"<>]/g, '-')}.json`)
   fs.writeFileSync(existFilePath, JSON.stringify(data, null, 2), encoding)
