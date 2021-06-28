@@ -6,7 +6,7 @@ Example to deploy to stage
 ```
 node -r esm index.js env=stage folder=G:\Users\admin\Documents\metabase
 ```
-*this command publishing changed from you repo to selected environment and adding ids to items*
+*this command publishing changes from you repo to selected environment and adding ids to items*
 
 input params
 * env - environment to deploy from you repo
