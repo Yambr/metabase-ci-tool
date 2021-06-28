@@ -66,7 +66,11 @@ using
 2. Click Publish Remote for stage (*commit to see changes in repo*)
 *publishing adding new ids from environment - don't forget commit them*
    
-### 4 Automatic publishing
+### 4. Automatic publishing
 [console tool](src/ci/README.md) - using logic like manual publishing
+
+### Example Videos on Youtube
+* [configuring](https://youtu.be/WkY8Y0CqG1E)
+* [publishing with desktop](https://youtu.be/N2smht9wt9M)
 
 
