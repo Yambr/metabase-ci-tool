@@ -3,7 +3,7 @@
     <b-alert variant="danger" :show="!config">
       Configure metabase settings
     </b-alert>
-    <b-button v-b-modal.settings-modal>Open Settings</b-button>
+    <b-button v-b-modal.settings-modal>0. Open Settings</b-button>
     <b-modal size="xl" ok-only id="settings-modal" title="Metabase CI Settings">
       <b-form @submit="onSubmit">
 
@@ -40,7 +40,7 @@
   </div>
 </template>
 <script>
-import {writeSettings} from '../services/repository-config'
+import {writeSettings} from '../../ci/services/repository-config'
 
 export default {
   name: 'Settings',

@@ -28,7 +28,11 @@ function createCollectionFolders(collections, rootFolder, parentFolder, currentC
       const oldPath = path.join(rootFolder, existingCollection.folder)
       if (fs.existsSync(oldPath)) {
         if (oldPath !== fPath) {
-          fs.renameSync(oldPath, fPath)
+          if (fs.existsSync(fPath)) {
+            console.error(`${fPath} already exists! cant rename`)
+          } else {
+            fs.renameSync(oldPath, fPath)
+          }
         }
       } else {
         if (!fs.existsSync(fPath)) {
