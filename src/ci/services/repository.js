@@ -1,5 +1,6 @@
 import fs from 'fs'
 import path from 'path'
+import mkDirByPathSync from '../../utils/mkdir-p.ts'
 
 export const encoding = 'utf8'
 const collectionsFile = 'collections.json'
@@ -153,7 +154,7 @@ export function dashboardsPathExists(rootFolder, folder) {
 function itemsPathExists(rootFolder, folder, subFolder) {
   const itemsPath = path.join(rootFolder, folder, subFolder)
   if (!fs.existsSync(itemsPath)) {
-    fs.mkdirSync(itemsPath)
+    mkDirByPathSync(itemsPath)
   }
 }
 

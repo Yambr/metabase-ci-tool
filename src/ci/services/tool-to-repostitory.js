@@ -1,5 +1,6 @@
 import path from 'path'
 import fs from 'fs'
+import sanitize from 'sanitize-filename'
 import {
   cardsPathExists, cleanCards, cleanDashboards,
   convertToPlainCollection, dashboardsPathExists,
@@ -8,11 +9,12 @@ import {
   removeCard, removeDashboard, writeCard,
   writeCollections, writeDashboard
 } from './repository'
+import mkDirByPathSync from '../../utils/mkdir-p.ts'
 
 export const encoding = 'utf8'
 
 function createCollectionFolders(collections, rootFolder, parentFolder, currentCollections) {
-  for (let item of collections) {
+  for (let item of collections.sort((c) => c.folder)) {
     const {id, children, archived, personal_owner_id} = item
     const {dev} = id
     const name = `${item.name} (${dev})`
@@ -26,12 +28,12 @@ function createCollectionFolders(collections, rootFolder, parentFolder, currentC
       fs.mkdirSync(archivedFolder)
     }
     const fPath = personal_owner_id
-      ? path.join(rootFolder, 'personal', name)
+      ? path.join(rootFolder, 'personal', sanitize(name))
       : archived
-        ? path.join(rootFolder, 'archived', name)
-        : path.join(parentFolder, name)
+        ? path.join(rootFolder, 'archived', sanitize(name))
+        : path.join(parentFolder, sanitize(name))
     if (existingCollection) {
-      const oldPath = path.join(rootFolder, existingCollection.folder)
+      const oldPath = sanitize(path.join(rootFolder, sanitize(existingCollection.folder)))
       if (fs.existsSync(oldPath)) {
         if (oldPath !== fPath) {
           if (fs.existsSync(fPath)) {
@@ -47,7 +49,7 @@ function createCollectionFolders(collections, rootFolder, parentFolder, currentC
       }
     } else {
       if (!fs.existsSync(fPath)) {
-        fs.mkdirSync(fPath)
+        mkDirByPathSync(fPath)
       }
     }
 
